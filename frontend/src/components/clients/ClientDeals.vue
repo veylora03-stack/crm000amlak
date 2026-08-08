@@ -1,76 +1,79 @@
-<template>
-  <section>
-    <div v-if="loading" class="space-y-3">
-      <div
-        v-for="index in 3"
-        :key="index"
-        class="h-16 animate-pulse rounded-md bg-surface-muted-light dark:bg-surface-muted-dark"
-      ></div>
-    </div>
-
-    <div
-      v-else-if="deals.length === 0"
-      class="flex flex-col items-center justify-center gap-3 py-10 text-center"
-    >
-      <p class="text-text-secondary-light dark:text-text-secondary-dark">
-        معامله‌ای برای این مشتری ثبت نشده است.
-      </p>
-      <button type="button" class="btn-primary" @click="$emit('create')">
-        ایجاد Deal
+﻿<template>
+  <div class="space-y-4">
+    <div class="flex items-center justify-between">
+      <h3 class="text-sm font-bold">معاملات مشتری</h3>
+      <button class="btn-secondary btn-sm">
+        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+        معامله جدید
       </button>
     </div>
 
-    <div v-else class="grid gap-4 md:grid-cols-2">
-      <article
-        v-for="deal in deals"
-        :key="deal.id"
-        class="rounded-md border border-border-light bg-surface-light p-4 dark:border-border-dark dark:bg-surface-dark"
-      >
-        <div class="flex items-start justify-between gap-2">
-          <h3 class="font-medium text-text-primary-light dark:text-text-primary-dark">
-            {{ deal.title }}
-          </h3>
-          <span
-            class="rounded-full bg-secondary-100 px-2 py-1 text-xs text-secondary-700 dark:bg-secondary-800 dark:text-secondary-300"
-          >
-            {{ deal.stage }}
-          </span>
-        </div>
-
-        <dl class="mt-3 space-y-2 text-sm">
-          <div class="flex items-center justify-between gap-2">
-            <dt class="text-text-secondary-light dark:text-text-secondary-dark">مبلغ</dt>
-            <dd class="font-medium">{{ formatCurrency(deal.amount) }}</dd>
-          </div>
-
-          <div class="flex items-center justify-between gap-2">
-            <dt class="text-text-secondary-light dark:text-text-secondary-dark">وضعیت</dt>
-            <dd class="font-medium">{{ deal.status }}</dd>
-          </div>
-
-          <div class="flex items-center justify-between gap-2">
-            <dt class="text-text-secondary-light dark:text-text-secondary-dark">تاریخ ایجاد</dt>
-            <dd class="font-medium">{{ formatDate(deal.created_at) }}</dd>
-          </div>
-        </dl>
-      </article>
+    <div v-if="deals.length === 0" class="flex flex-col items-center justify-center py-12 text-center">
+      <div class="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-base-100 dark:bg-base-800">
+        <svg class="h-7 w-7 text-base-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+      </div>
+      <p class="text-sm font-semibold">معامله‌ای وجود ندارد</p>
+      <p class="mt-1 text-xs text-base-500">هنوز معامله‌ای برای این مشتری ثبت نشده است</p>
     </div>
-  </section>
+
+    <div v-else class="space-y-3">
+      <div v-for="deal in deals" :key="deal.id" class="rounded-lg border border-app-border p-4 transition-all hover:border-base-300 dark:border-app-border-dark dark:hover:border-base-700">
+        <div class="flex items-start justify-between gap-3">
+          <div class="min-w-0 flex-1">
+            <h4 class="font-semibold">{{ deal.title }}</h4>
+            <p class="mt-1 text-xs text-base-500">{{ deal.property_title }}</p>
+          </div>
+          <span :class="['badge', dealStatusBadge(deal.status)]">{{ dealStatusLabel(deal.status) }}</span>
+        </div>
+        <div class="mt-3 flex items-center justify-between text-xs">
+          <span class="text-base-500">ارزش:</span>
+          <span class="font-bold tabular-nums text-brand-600" dir="ltr">{{ formatCurrency(deal.amount) }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup>
-import { formatDate, formatCurrency } from '@/utils/format'
+import { ref, onMounted } from 'vue'
 
-defineProps({
-  deals: {
-    type: Array,
-    default: () => []
-  },
-  loading: {
-    type: Boolean,
-    default: false
-  }
+const props = defineProps({
+  clientId: { type: String, required: true }
 })
 
-defineEmits(['create'])
+const deals = ref([
+  { id: 1, title: 'آپارتمان سعادت‌آباد', property_title: 'آپارتمان ۱۲۰ متری', status: 'Negotiating', amount: 2500000000 },
+  { id: 2, title: 'ویلای لواسان', property_title: 'ویلای ۵۰۰ متری', status: 'Won', amount: 1800000000 }
+])
+
+function formatCurrency(amount) {
+  if (!amount) return '—'
+  if (amount >= 1e9) return (amount / 1e9).toFixed(1) + 'B'
+  if (amount >= 1e6) return (amount / 1e6).toFixed(1) + 'M'
+  return amount.toLocaleString()
+}
+
+function dealStatusBadge(status) {
+  const map = {
+    'New': 'badge-brand',
+    'Negotiating': 'badge-warning',
+    'Won': 'badge-success',
+    'Lost': 'badge-danger'
+  }
+  return map[status] || 'badge-neutral'
+}
+
+function dealStatusLabel(status) {
+  const map = {
+    'New': 'جدید',
+    'Negotiating': 'در حال مذاکره',
+    'Won': 'برنده',
+    'Lost': 'باخته'
+  }
+  return map[status] || status
+}
 </script>

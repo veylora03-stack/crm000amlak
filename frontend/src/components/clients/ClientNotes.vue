@@ -1,81 +1,61 @@
-<template>
-  <section>
-    <form class="mb-6" @submit.prevent="submit">
-      <label for="new-note" class="label-base">افزودن یادداشت سریع</label>
-      <textarea
-        id="new-note"
-        v-model="body"
-        rows="3"
-        class="input-base"
-        placeholder="یادداشت خود را بنویسید..."
-      ></textarea>
-      <p v-if="error" class="error-text">{{ error }}</p>
-
-      <button type="submit" class="btn-primary mt-3">
-        ثبت یادداشت
+﻿<template>
+  <div class="space-y-4">
+    <div class="flex items-center justify-between">
+      <h3 class="text-sm font-bold">یادداشت‌ها</h3>
+      <button class="btn-secondary btn-sm">
+        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+        یادداشت جدید
       </button>
-    </form>
-
-    <div v-if="loading" class="space-y-3">
-      <div
-        v-for="index in 3"
-        :key="index"
-        class="h-14 animate-pulse rounded-md bg-surface-muted-light dark:bg-surface-muted-dark"
-      ></div>
     </div>
 
-    <div
-      v-else-if="notes.length === 0"
-      class="py-8 text-center text-sm text-text-secondary-light dark:text-text-secondary-dark"
-    >
-      یادداشتی ثبت نشده است.
+    <div v-if="notes.length === 0" class="flex flex-col items-center justify-center py-12 text-center">
+      <div class="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-base-100 dark:bg-base-800">
+        <svg class="h-7 w-7 text-base-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+      </div>
+      <p class="text-sm font-semibold">یادداشتی وجود ندارد</p>
+      <p class="mt-1 text-xs text-base-500">هنوز یادداشتی برای این مشتری ثبت نشده است</p>
     </div>
 
-    <ul v-else class="space-y-3">
-      <li
-        v-for="note in notes"
-        :key="note.id"
-        class="rounded-md border border-border-light bg-surface-light p-4 dark:border-border-dark dark:bg-surface-dark"
-      >
-        <p class="text-sm text-text-primary-light dark:text-text-primary-dark">
-          {{ note.body }}
-        </p>
-        <p class="mt-2 text-xs text-text-secondary-light dark:text-text-secondary-dark">
-          {{ note.user || 'کاربر' }} — {{ formatDateTime(note.occurred_at) }}
-        </p>
-      </li>
-    </ul>
-  </section>
+    <div v-else class="space-y-3">
+      <div v-for="note in notes" :key="note.id" class="rounded-lg border border-app-border p-4 dark:border-app-border-dark">
+        <div class="flex items-start justify-between gap-3">
+          <p class="text-sm">{{ note.content }}</p>
+          <button class="btn-icon btn-ghost" @click="deleteNote(note.id)">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+          </button>
+        </div>
+        <div class="mt-3 flex items-center gap-2 text-xs text-base-500">
+          <span>{{ note.author }}</span>
+          <span>•</span>
+          <span dir="ltr">{{ formatDate(note.date) }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
-import { formatDateTime } from '@/utils/format'
+import { useJalaaliDate } from '@/composables/useJalaaliDate'
 
-defineProps({
-  notes: {
-    type: Array,
-    default: () => []
-  },
-  loading: {
-    type: Boolean,
-    default: false
-  }
+const props = defineProps({
+  clientId: { type: String, required: true }
 })
 
-const emit = defineEmits(['add'])
+const { formatDate } = useJalaaliDate()
 
-const body = ref('')
-const error = ref('')
+const notes = ref([
+  { id: 1, content: 'مشتری به دنبال آپارتمان ۲ خوابه در منطقه ۱ است. بودجه حداکثر ۳ میلیارد تومان.', author: 'علی رضایی', date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000) },
+  { id: 2, content: 'تماس تلفنی انجام شد. مشتری علاقه‌مند به بازدید از ملک کد ۱۲۳۴ است.', author: 'مدیر سیستم', date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000) }
+])
 
-function submit() {
-  if (!body.value.trim()) {
-    error.value = 'متن یادداشت الزامی است.'
-    return
-  }
-
-  error.value = ''
-  emit('add', body.value.trim())
-  body.value = ''
+function deleteNote(noteId) {
+  // TODO: Delete note
 }
 </script>

@@ -1,115 +1,69 @@
-<template>
-  <section>
-    <div v-if="loading" class="space-y-3">
-      <div
-        v-for="index in 4"
-        :key="index"
-        class="h-16 animate-pulse rounded-md bg-surface-muted-light dark:bg-surface-muted-dark"
-      ></div>
+﻿<template>
+  <div class="space-y-4">
+    <div class="flex items-center justify-between">
+      <h3 class="text-sm font-bold">تاریخچه فعالیت‌ها</h3>
+      <button class="btn-secondary btn-sm">
+        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+        فعالیت جدید
+      </button>
     </div>
 
-    <div
-      v-else-if="items.length === 0"
-      class="flex flex-col items-center justify-center gap-3 py-10 text-center"
-    >
-      <p class="text-text-secondary-light dark:text-text-secondary-dark">
-        هنوز تعاملی ثبت نشده است.
-      </p>
-    </div>
-
-    <ol v-else class="relative space-y-4 border-r border-border-light pr-4 dark:border-border-dark">
-      <li
-        v-for="item in items"
-        :key="item.id"
-        class="relative rounded-md border border-border-light bg-surface-light p-4 dark:border-border-dark dark:bg-surface-dark"
-      >
+    <ol class="relative space-y-4 pr-4 before:absolute before:bottom-0 before:right-[7px] before:top-0 before:w-0.5 before:bg-gradient-to-b before:from-app-border before:to-transparent dark:before:from-app-border-dark">
+      <li v-for="activity in activities" :key="activity.id" class="relative">
         <span
-          class="absolute -right-[41px] top-4 flex h-8 w-8 items-center justify-center rounded-full border border-border-light bg-surface-light text-sm dark:border-border-dark dark:bg-surface-dark"
-          aria-hidden="true"
+          class="absolute -right-[13px] flex h-5 w-5 items-center justify-center rounded-full border-2 text-[10px]"
+          :class="getActivityClass(activity.type)"
         >
-          {{ icon(item.interaction_type) }}
+          {{ getActivityIcon(activity.type) }}
         </span>
-
-        <div class="flex flex-wrap items-center justify-between gap-2">
-          <p class="font-medium text-text-primary-light dark:text-text-primary-dark">
-            {{ item.title }}
-          </p>
-          <p class="text-xs text-text-secondary-light dark:text-text-secondary-dark">
-            {{ formatDateTime(item.occurred_at) }}
-          </p>
-        </div>
-
-        <p class="mt-2 text-sm text-text-secondary-light dark:text-text-secondary-dark">
-          {{ item.body }}
-        </p>
-
-        <div class="mt-3 flex flex-wrap items-center gap-2 text-xs">
-          <span class="rounded-full bg-secondary-100 px-2 py-1 text-secondary-700 dark:bg-secondary-800 dark:text-secondary-300">
-            {{ item.user || 'کاربر' }}
-          </span>
-
-          <span
-            v-if="item.needs_followup"
-            class="rounded-full bg-warning-50 px-2 py-1 text-warning-700 dark:bg-warning-900/20 dark:text-warning-400"
-          >
-            پیگیری: {{ formatDate(item.followup_at) }}
-          </span>
-
-          <span
-            v-if="item.duration_minutes"
-            class="rounded-full bg-secondary-100 px-2 py-1 text-secondary-700 dark:bg-secondary-800 dark:text-secondary-300"
-          >
-            مدت: {{ item.duration_minutes }} دقیقه
-          </span>
+        <div class="rounded-lg border border-app-border p-3 dark:border-app-border-dark">
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <p class="text-sm font-semibold">{{ activity.title }}</p>
+              <p class="mt-0.5 text-xs text-base-500">{{ activity.description }}</p>
+            </div>
+            <span class="text-[11px] text-base-400 whitespace-nowrap" dir="ltr">
+              {{ formatRelative(activity.date) }}
+            </span>
+          </div>
         </div>
       </li>
     </ol>
-  </section>
+  </div>
 </template>
 
 <script setup>
-import { formatDate, formatDateTime } from '@/utils/format'
+import { ref, onMounted } from 'vue'
+import { useJalaaliDate } from '@/composables/useJalaaliDate'
 
-defineProps({
-  items: {
-    type: Array,
-    default: () => []
-  },
-  loading: {
-    type: Boolean,
-    default: false
-  }
+const props = defineProps({
+  clientId: { type: String, required: true }
 })
 
-function icon(type) {
-  if (type === 'call') {
-    return '📞'
-  }
+const { formatRelative } = useJalaaliDate()
 
-  if (type === 'meeting') {
-    return '🤝'
-  }
+const activities = ref([
+  { id: 1, type: 'call', title: 'تماس تلفنی', description: 'بررسی نیازها و بودجه', date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000) },
+  { id: 2, type: 'meeting', title: 'جلسه حضوری', description: 'بازدید از ملک', date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000) },
+  { id: 3, type: 'email', title: 'ایمیل', description: 'ارسال لیست املاک', date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) },
+  { id: 4, type: 'deal', title: 'معامله جدید', description: 'آپارتمان سعادت‌آباد', date: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000) }
+])
 
-  if (type === 'email') {
-    return '✉️'
-  }
+function getActivityIcon(type) {
+  const icons = { call: '📞', meeting: '👥', email: '✉️', deal: '💼', note: '📝' }
+  return icons[type] || '📋'
+}
 
-  if (type === 'message') {
-    return '💬'
+function getActivityClass(type) {
+  const classes = {
+    call: 'border-brand-500 bg-brand-500/10',
+    meeting: 'border-accent-500 bg-accent-500/10',
+    email: 'border-success-500 bg-success-500/10',
+    deal: 'border-warning-500 bg-warning-500/10',
+    note: 'border-base-500 bg-base-500/10'
   }
-
-  if (type === 'note') {
-    return '📝'
-  }
-
-  if (type === 'visit') {
-    return '🏠'
-  }
-
-  if (type === 'file') {
-    return '📄'
-  }
-
-  return '📌'
+  return classes[type] || classes.note
 }
 </script>
