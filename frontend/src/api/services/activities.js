@@ -1,3 +1,4 @@
 ﻿import { createResource } from '../resourceFactory'
-export { default as activitiesApi } from '../resourceFactory'
-export default createResource('interactions')
+const activitiesApi = createResource('interactions')
+export { activitiesApi }
+export default activitiesApi
