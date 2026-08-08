@@ -17,14 +17,21 @@
       <p class="text-sm font-semibold">داده‌ای برای نمایش وجود ندارد.</p>
     </div>
 
-    <VueApexCharts v-else :type="type" :height="height" :options="options" :series="series" />
+    <component
+      v-else
+      :is="chartComponent"
+      :type="type"
+      :height="height"
+      :options="options"
+      :series="series"
+    />
   </section>
 </template>
 
 <script setup>
-const VueApexCharts = () => import('vue3-apexcharts').then(m => m.default)
+import { defineAsyncComponent, shallowRef, onMounted } from 'vue'
 
-defineProps({
+const props = defineProps({
   title: { type: String, required: true },
   type: { type: String, default: 'line' },
   height: { type: Number, default: 280 },
@@ -36,5 +43,12 @@ defineProps({
 })
 
 defineEmits(['retry'])
-</script>
 
+// Lazy load ApexCharts only when component mounts
+const chartComponent = shallowRef(null)
+
+onMounted(async () => {
+  const module = await import('vue3-apexcharts')
+  chartComponent.value = module.default
+})
+</script>
