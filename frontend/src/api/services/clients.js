@@ -1,49 +1,27 @@
-﻿import api from '../client'
+﻿import { createResource } from '../resourceFactory'
+import api from '../client'
 
-const base = '/clients/'
+const base = createResource('clients')
 
-const clientsApi = {
-  list(params = {}) {
-    return api.get(base, { params })
-  },
-
-  retrieve(publicId) {
-    return api.get(`${base}${publicId}/`)
-  },
-
-  create(payload) {
-    return api.post(base, payload)
-  },
-
-  update(publicId, payload) {
-    return api.put(`${base}${publicId}/`, payload)
-  },
-
-  partialUpdate(publicId, payload) {
-    return api.patch(`${base}${publicId}/`, payload)
-  },
-
-  remove(publicId) {
-    return api.delete(`${base}${publicId}/`)
-  },
-
+export default {
+  ...base,
+  
+  // Custom endpoints
   timeline(publicId) {
-    return api.get(`${base}${publicId}/timeline/`)
+    return api.get(`/clients/${publicId}/timeline/`)
   },
-
+  
   deals(publicId) {
-    return api.get(`${base}${publicId}/deals/`)
+    return api.get(`/clients/${publicId}/deals/`)
   },
-
+  
   interactions(publicId) {
-    return api.get(`${base}${publicId}/interactions/`)
+    return api.get(`/clients/${publicId}/interactions/`)
   },
-
-  assign(publicId, assignedAgentPublicId) {
-    return api.post(`${base}${publicId}/assign/`, {
-      assigned_agent: assignedAgentPublicId
+  
+  assign(publicId, agentPublicId) {
+    return api.post(`/clients/${publicId}/assign/`, {
+      assigned_agent: agentPublicId
     })
   }
 }
-
-export default clientsApi

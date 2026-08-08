@@ -1,19 +1,15 @@
 ﻿import api from '../client'
 
-const base = '/dashboard/'
-
-const dashboardApi = {
+export default {
   kpis(params = {}) {
-    return api.get(`${base}kpis/`, { params })
+    return api.get('/dashboard/kpis/', { params })
   },
-
+  
   charts(params = {}) {
-    return api.get(`${base}charts/`, { params })
+    return api.get('/dashboard/charts/', { params })
   },
-
+  
   recentActivities(params = {}) {
-    return api.get(`${base}recent-activities/`, { params })
+    return api.get('/dashboard/recent-activities/', { params })
   }
 }
-
-export default dashboardApi

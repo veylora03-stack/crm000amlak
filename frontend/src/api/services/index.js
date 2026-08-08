@@ -10,3 +10,6 @@ export { default as dashboardApi } from './dashboard'
 export { default as reportsApi } from './reports'
 export { default as settingsApi } from './settings'
 export { default as searchApi } from './search'
+
+// Export factory for advanced usage
+export { createResource, createSubResource, createSingleton } from '../resourceFactory'

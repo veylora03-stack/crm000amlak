@@ -1,13 +1,9 @@
 ﻿import api from '../client'
 
-const searchApi = {
+export default {
   global(query) {
     return api.get('/search/', {
-      params: {
-        q: query
-      }
+      params: { q: query }
     })
   }
 }
-
-export default searchApi

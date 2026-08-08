@@ -1,39 +1,20 @@
-﻿import api from '../client'
+﻿import { createResource } from '../resourceFactory'
+import api from '../client'
 
-const base = '/users/'
+const base = createResource('users')
 
-const usersApi = {
-  list(params = {}) {
-    return api.get(base, { params })
-  },
-
-  retrieve(publicId) {
-    return api.get(`${base}${publicId}/`)
-  },
-
-  create(payload) {
-    return api.post(base, payload)
-  },
-
-  update(publicId, payload) {
-    return api.put(`${base}${publicId}/`, payload)
-  },
-
-  partialUpdate(publicId, payload) {
-    return api.patch(`${base}${publicId}/`, payload)
-  },
-
-  remove(publicId) {
-    return api.delete(`${base}${publicId}/`)
-  },
-
+export default {
+  ...base,
+  
   activate(publicId) {
-    return api.post(`${base}${publicId}/activate/`)
+    return api.post(`/users/${publicId}/activate/`)
   },
-
+  
   deactivate(publicId) {
-    return api.post(`${base}${publicId}/deactivate/`)
+    return api.post(`/users/${publicId}/deactivate/`)
+  },
+  
+  changePassword(publicId, payload) {
+    return api.post(`/users/${publicId}/change-password/`, payload)
   }
 }
-
-export default usersApi

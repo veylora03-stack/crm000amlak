@@ -1,31 +1,16 @@
-﻿import api from '../client'
+﻿import { createResource } from '../resourceFactory'
+import api from '../client'
 
-const base = '/notifications/'
+const base = createResource('notifications')
 
-const notificationsApi = {
-  list(params = {}) {
-    return api.get(base, { params })
-  },
-
-  retrieve(publicId) {
-    return api.get(`${base}${publicId}/`)
-  },
-
-  create(payload) {
-    return api.post(base, payload)
-  },
-
-  remove(publicId) {
-    return api.delete(`${base}${publicId}/`)
-  },
-
+export default {
+  ...base,
+  
   markRead(publicId) {
-    return api.post(`${base}${publicId}/read/`)
+    return api.post(`/notifications/${publicId}/read/`)
   },
-
+  
   markAllRead() {
-    return api.post(`${base}read-all/`)
+    return api.post('/notifications/read-all/')
   }
 }
-
-export default notificationsApi
