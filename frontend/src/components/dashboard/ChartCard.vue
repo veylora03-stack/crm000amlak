@@ -22,7 +22,7 @@
 </template>
 
 <script setup>
-import VueApexCharts from 'vue3-apexcharts'
+const VueApexCharts = () => import('vue3-apexcharts').then(m => m.default)
 
 defineProps({
   title: { type: String, required: true },
@@ -37,3 +37,4 @@ defineProps({
 
 defineEmits(['retry'])
 </script>
+

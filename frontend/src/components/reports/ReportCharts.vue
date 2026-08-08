@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <ChartCard
     :title="chartTitle"
     :type="chartType"
@@ -81,7 +81,7 @@ const chartOptions = computed(() => {
     dataLabels: {
       enabled: false
     },
-    colors: ['#2563eb', '#16a34a', '#f59e0b', '#dc2626', '#7c3aed', '#0891b2', '#db2777']
+    colors: ['#2563eb', '#16a34a', 'theme("colors.chart.amber")', '#dc2626', '#7c3aed', '#0891b2', '#db2777']
   }
 
   if (chartType.value === 'bar') {
@@ -197,3 +197,4 @@ function fieldForReport() {
   return 'interaction_type'
 }
 </script>
+

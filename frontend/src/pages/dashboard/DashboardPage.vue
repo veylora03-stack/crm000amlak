@@ -336,7 +336,7 @@ const primaryKpis = [
     changeTone: 'success',
     to: '/deals',
     sparklineData: [12, 18, 15, 22, 19, 24, 28],
-    sparklineColor: '#10b981',
+    sparklineColor: 'theme("colors.chart.emerald")',
     progress: 75
   },
   {
@@ -349,7 +349,7 @@ const primaryKpis = [
     badge: 'جدید',
     badgeVariant: 'badge-success',
     sparklineData: [8, 12, 10, 15, 13, 18, 20],
-    sparklineColor: '#06b6d4'
+    sparklineColor: 'theme("colors.chart.cyan")'
   },
   {
     title: 'ارزش پایپ‌لاین',
@@ -360,7 +360,7 @@ const primaryKpis = [
     to: '/pipeline',
     suffix: ' T',
     sparklineData: [180, 195, 210, 225, 240, 245, 260],
-    sparklineColor: '#f59e0b'
+    sparklineColor: 'theme("colors.chart.amber")'
   },
   {
     title: 'املاک فعال',
@@ -370,16 +370,16 @@ const primaryKpis = [
     changeTone: 'danger',
     to: '/properties',
     sparklineData: [48, 46, 45, 44, 43, 42, 41],
-    sparklineColor: '#ef4444'
+    sparklineColor: 'theme("colors.chart.red")'
   }
 ]
 
 const pipelineStages = [
-  { name: 'لید جدید', color: '#6366f1', count: 8, total: 24, percent: 33, value: 82000000000 },
-  { name: 'تماس اولیه', color: '#8b5cf6', count: 6, total: 24, percent: 25, value: 65000000000 },
-  { name: 'نیازسنجی', color: '#10b981', count: 5, total: 24, percent: 21, value: 58000000000 },
-  { name: 'بازدید', color: '#f59e0b', count: 3, total: 24, percent: 13, value: 28000000000 },
-  { name: 'مذاکره', color: '#ef4444', count: 2, total: 24, percent: 8, value: 12000000000 }
+  { name: 'لید جدید', color: 'theme("colors.chart.indigo")', count: 8, total: 24, percent: 33, value: 82000000000 },
+  { name: 'تماس اولیه', color: 'theme("colors.chart.violet")', count: 6, total: 24, percent: 25, value: 65000000000 },
+  { name: 'نیازسنجی', color: 'theme("colors.chart.emerald")', count: 5, total: 24, percent: 21, value: 58000000000 },
+  { name: 'بازدید', color: 'theme("colors.chart.amber")', count: 3, total: 24, percent: 13, value: 28000000000 },
+  { name: 'مذاکره', color: 'theme("colors.chart.red")', count: 2, total: 24, percent: 8, value: 12000000000 }
 ]
 
 const recentActivities = [
@@ -396,7 +396,7 @@ const chartOptions = {
     zoom: { enabled: false },
     background: 'transparent'
   },
-  colors: ['#10b981'],
+  colors: ['theme("colors.chart.emerald")'],
   stroke: { curve: 'smooth', width: 3, lineCap: 'round' },
   fill: {
     type: 'gradient',
@@ -466,9 +466,10 @@ async function loadDashboard() {
 
 <style scoped>
 .gradient-text-premium {
-  background: linear-gradient(135deg, #10b981 0%, #06b6d4 50%, #8b5cf6 100%);
+  background: linear-gradient(135deg, theme("colors.chart.emerald") 0%, theme("colors.chart.cyan") 50%, theme("colors.chart.violet") 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 </style>
+

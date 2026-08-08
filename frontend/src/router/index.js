@@ -1,76 +1,157 @@
 ﻿import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
+// Lazy load all pages for code splitting
+const LoginPage = () => import('@/pages/auth/LoginPage.vue')
+const ForgotPasswordPage = () => import('@/pages/auth/ForgotPasswordPage.vue')
+const ResetPasswordPage = () => import('@/pages/auth/ResetPasswordPage.vue')
+const DashboardPage = () => import('@/pages/dashboard/DashboardPage.vue')
+const ClientsPage = () => import('@/pages/clients/ClientsPage.vue')
+const ClientDetailPage = () => import('@/pages/clients/ClientDetailPage.vue')
+const PropertiesPage = () => import('@/pages/properties/PropertiesPage.vue')
+const PropertyDetailPage = () => import('@/pages/properties/PropertyDetailPage.vue')
+const PipelinePage = () => import('@/pages/pipeline/PipelinePage.vue')
+const DealsPage = () => import('@/pages/deals/DealsPage.vue')
+const TasksPage = () => import('@/pages/tasks/TasksPage.vue')
+const ReportsPage = () => import('@/pages/reports/ReportsPage.vue')
+const NotificationsPage = () => import('@/pages/notifications/NotificationsPage.vue')
+const SettingsPage = () => import('@/pages/settings/SettingsPage.vue')
+const UsersPage = () => import('@/pages/users/UsersPage.vue')
+const ProfilePage = () => import('@/pages/profile/ProfilePage.vue')
+
 const routes = [
   {
     path: '/login',
     name: 'login',
-    component: () => import('@/pages/auth/LoginPage.vue'),
-    meta: { requiresAuth: false, guestOnly: true, title: 'ورود' }
+    component: LoginPage,
+    meta: { requiresGuest: true }
   },
   {
     path: '/forgot-password',
     name: 'forgot-password',
-    component: () => import('@/pages/auth/ForgotPasswordPage.vue'),
-    meta: { requiresAuth: false, guestOnly: true, title: 'فراموشی رمز عبور' }
+    component: ForgotPasswordPage,
+    meta: { requiresGuest: true }
   },
   {
-    path: '/reset-password',
+    path: '/reset-password/:token',
     name: 'reset-password',
-    component: () => import('@/pages/auth/ResetPasswordPage.vue'),
-    meta: { requiresAuth: false, guestOnly: true, title: 'بازنشانی رمز عبور' }
+    component: ResetPasswordPage,
+    meta: { requiresGuest: true }
   },
-  { path: '/', redirect: '/dashboard' },
-  { path: '/dashboard', name: 'dashboard', component: () => import('@/pages/dashboard/DashboardPage.vue'), meta: { requiresAuth: true, title: 'داشبورد' } },
-  { path: '/clients', name: 'clients', component: () => import('@/pages/clients/ClientsPage.vue'), meta: { requiresAuth: true, title: 'مشتریان' } },
-  { path: '/clients/:id', name: 'client-detail', component: () => import('@/pages/clients/ClientDetailPage.vue'), meta: { requiresAuth: true, title: 'جزئیات مشتری' } },
-  { path: '/properties', name: 'properties', component: () => import('@/pages/properties/PropertiesPage.vue'), meta: { requiresAuth: true, title: 'املاک' } },
-  { path: '/properties/:id', name: 'property-detail', component: () => import('@/pages/properties/PropertyDetailPage.vue'), meta: { requiresAuth: true, title: 'جزئیات ملک' } },
-  { path: '/pipeline', name: 'pipeline', component: () => import('@/pages/pipeline/PipelinePage.vue'), meta: { requiresAuth: true, title: 'پایپ‌لاین فروش' } },
-  { path: '/deals', name: 'deals', component: () => import('@/pages/deals/DealsPage.vue'), meta: { requiresAuth: true, title: 'معاملات' } },
-  { path: '/tasks', name: 'tasks', component: () => import('@/pages/tasks/TasksPage.vue'), meta: { requiresAuth: true, title: 'وظایف' } },
-  { path: '/reports', name: 'reports', component: () => import('@/pages/reports/ReportsPage.vue'), meta: { requiresAuth: true, roles: ['Admin', 'Manager'], title: 'گزارش‌ها' } },
-  { path: '/notifications', name: 'notifications', component: () => import('@/pages/notifications/NotificationsPage.vue'), meta: { requiresAuth: true, title: 'نوتیفیکیشن‌ها' } },
-  { path: '/settings', name: 'settings', component: () => import('@/pages/settings/SettingsPage.vue'), meta: { requiresAuth: true, roles: ['Admin'], title: 'تنظیمات' } },
-  { path: '/profile', name: 'profile', component: () => import('@/pages/profile/ProfilePage.vue'), meta: { requiresAuth: true, title: 'پروفایل' } },
-  { path: '/users', name: 'users', component: () => import('@/pages/users/UsersPage.vue'), meta: { requiresAuth: true, roles: ['Admin'], title: 'کاربران' } },
-  { path: '/:pathMatch(.*)*', redirect: '/dashboard' }
+  {
+    path: '/',
+    redirect: '/dashboard'
+  },
+  {
+    path: '/dashboard',
+    name: 'dashboard',
+    component: DashboardPage,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/clients',
+    name: 'clients',
+    component: ClientsPage,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/clients/:id',
+    name: 'client-detail',
+    component: ClientDetailPage,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/properties',
+    name: 'properties',
+    component: PropertiesPage,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/properties/:id',
+    name: 'property-detail',
+    component: PropertyDetailPage,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/pipeline',
+    name: 'pipeline',
+    component: PipelinePage,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/deals',
+    name: 'deals',
+    component: DealsPage,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/tasks',
+    name: 'tasks',
+    component: TasksPage,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/reports',
+    name: 'reports',
+    component: ReportsPage,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/notifications',
+    name: 'notifications',
+    component: NotificationsPage,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/settings',
+    name: 'settings',
+    component: SettingsPage,
+    meta: { requiresAuth: true, requiresAdmin: true }
+  },
+  {
+    path: '/users',
+    name: 'users',
+    component: UsersPage,
+    meta: { requiresAuth: true, requiresAdmin: true }
+  },
+  {
+    path: '/profile',
+    name: 'profile',
+    component: ProfilePage,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'not-found',
+    redirect: '/dashboard'
+  }
 ]
 
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
+  history: createWebHistory(),
   routes,
   scrollBehavior(to, from, savedPosition) {
-    if (savedPosition) return savedPosition
-    return { top: 0 }
+    if (savedPosition) {
+      return savedPosition
+    } else {
+      return { top: 0 }
+    }
   }
 })
 
-router.beforeEach(async (to, from, next) => {
+// Navigation guards
+router.beforeEach((to, from, next) => {
   const auth = useAuthStore()
-
-  if (to.meta && to.meta.title) {
-    document.title = `${to.meta.title} — CRM تخصصی املاک`
-  } else {
-    document.title = 'CRM تخصصی املاک'
-  }
-
-  // If route requires auth and user is not authenticated
+  
   if (to.meta.requiresAuth && !auth.isAuthenticated) {
-    return next({ name: 'login', query: { redirect: to.fullPath } })
+    next({ name: 'login', query: { redirect: to.fullPath } })
+  } else if (to.meta.requiresGuest && auth.isAuthenticated) {
+    next({ name: 'dashboard' })
+  } else if (to.meta.requiresAdmin && !auth.isAdmin) {
+    next({ name: 'dashboard' })
+  } else {
+    next()
   }
-
-  // If route is for guests only and user is authenticated
-  if (to.meta.guestOnly && auth.isAuthenticated) {
-    return next({ name: 'dashboard' })
-  }
-
-  // Check role permissions
-  if (to.meta.roles && auth.isAuthenticated && !to.meta.roles.includes(auth.role)) {
-    return next({ name: 'dashboard' })
-  }
-
-  next()
 })
 
 export default router
