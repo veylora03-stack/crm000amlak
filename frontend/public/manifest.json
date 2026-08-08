@@ -1,0 +1,31 @@
+﻿{
+  "name": "CRM تخصصی املاک",
+  "short_name": "CRM املاک",
+  "description": "سیستم مدیریت ارتباط با مشتری تخصصی املاک",
+  "theme_color": "#10b981",
+  "background_color": "#0a0a0b",
+  "display": "standalone",
+  "orientation": "portrait",
+  "scope": "/",
+  "start_url": "/",
+  "lang": "fa",
+  "dir": "rtl",
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-maskable-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
