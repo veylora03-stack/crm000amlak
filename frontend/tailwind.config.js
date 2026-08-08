@@ -23,6 +23,16 @@ export default {
           400: '#818cf8', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca',
           800: '#3730a3', 900: '#312e81'
         },
+                // Chart & Visualization Colors (extracted from hardcoded values)
+        chart: {
+          emerald: '#10b981',
+          cyan: '#06b6d4',
+          violet: '#8b5cf6',
+          pink: '#ec4899',
+          amber: '#f59e0b',
+          red: '#ef4444',
+          indigo: '#6366f1'
+        },
         success: { 50: '#ecfdf5', 100: '#d1fae5', 400: '#34d399', 500: '#10b981', 600: '#059669', 700: '#047857' },
         warning: { 50: '#fffbeb', 100: '#fef3c7', 400: '#fbbf24', 500: '#f59e0b', 600: '#d97706', 700: '#b45309' },
         danger:  { 50: '#fef2f2', 100: '#fee2e2', 400: '#f87171', 500: '#ef4444', 600: '#dc2626', 700: '#b91c1c' },
@@ -101,3 +111,4 @@ export default {
   },
   plugins: []
 }
+
