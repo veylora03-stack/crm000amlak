@@ -1,0 +1,11 @@
+﻿from django.urls import path
+from rest_framework.routers import DefaultRouter
+
+from .views import TaskViewSet
+
+router = DefaultRouter()
+router.register('', TaskViewSet, basename='tasks')
+
+urlpatterns = [
+    path('<uuid:public_id>/complete/', TaskViewSet.as_view({'post': 'complete'}), name='task-complete'),
+] + router.urls
