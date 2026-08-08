@@ -1,5 +1,6 @@
 ﻿import { defineStore } from 'pinia'
 import { clientsApi } from '@/api'
+import { handleApiError } from '@/api/errorHandler'
 
 export const useClientsStore = defineStore('clients', {
   state: () => ({
@@ -53,8 +54,8 @@ export const useClientsStore = defineStore('clients', {
         this.items = response.data || []
         this.total = response.meta?.total || this.items.length
       } catch (error) {
-        const errors = error?.response?.data?.errors || []
-        this.error = errors.length > 0 ? errors[0].message : 'دریافت لیست مشتریان با مشکل مواجه شد.'
+        handleApiError(error, 'خطا در دریافت مشتریان')
+        this.error = 'خطا در دریافت مشتریان'
       } finally {
         this.loading = false
       }
@@ -67,8 +68,8 @@ export const useClientsStore = defineStore('clients', {
         const response = await clientsApi.retrieve(id)
         this.currentItem = response.data || response
       } catch (error) {
-        this.currentItem = null
-        this.error = 'مشتری مورد نظر یافت نشد.'
+        handleApiError(error, 'خطا در دریافت مشتریان')
+        this.error = 'خطا در دریافت مشتریان'
       } finally {
         this.loading = false
       }
@@ -82,9 +83,8 @@ export const useClientsStore = defineStore('clients', {
         await this.fetchClients()
         return response.data || response
       } catch (error) {
-        const errors = error?.response?.data?.errors || []
-        this.error = errors.length > 0 ? errors[0].message : 'ذخیره مشتری با مشکل مواجه شد.'
-        return null
+        handleApiError(error, 'خطا در دریافت مشتریان')
+        this.error = 'خطا در دریافت مشتریان'
       } finally {
         this.loading = false
       }
@@ -101,9 +101,8 @@ export const useClientsStore = defineStore('clients', {
         await this.fetchClients()
         return response.data || response
       } catch (error) {
-        const errors = error?.response?.data?.errors || []
-        this.error = errors.length > 0 ? errors[0].message : 'ویرایش مشتری با مشکل مواجه شد.'
-        return null
+        handleApiError(error, 'خطا در دریافت مشتریان')
+        this.error = 'خطا در دریافت مشتریان'
       } finally {
         this.loading = false
       }
@@ -117,8 +116,8 @@ export const useClientsStore = defineStore('clients', {
         await this.fetchClients()
         return true
       } catch (error) {
-        this.error = 'حذف مشتری با مشکل مواجه شد.'
-        return false
+        handleApiError(error, 'خطا در دریافت مشتریان')
+        this.error = 'خطا در دریافت مشتریان'
       } finally {
         this.loading = false
       }
@@ -131,7 +130,8 @@ export const useClientsStore = defineStore('clients', {
         const response = await clientsApi.timeline(id)
         this.timeline = response.data || []
       } catch (error) {
-        this.error = 'دریافت تایم‌لاین مشتری با مشکل مواجه شد.'
+        handleApiError(error, 'خطا در دریافت مشتریان')
+        this.error = 'خطا در دریافت مشتریان'
       } finally {
         this.loading = false
       }
@@ -144,7 +144,8 @@ export const useClientsStore = defineStore('clients', {
         const response = await clientsApi.deals(id)
         this.deals = response.data || []
       } catch (error) {
-        this.error = 'دریافت معاملات مشتری با مشکل مواجه شد.'
+        handleApiError(error, 'خطا در دریافت مشتریان')
+        this.error = 'خطا در دریافت مشتریان'
       } finally {
         this.loading = false
       }
@@ -156,3 +157,4 @@ export const useClientsStore = defineStore('clients', {
     }
   }
 })
+

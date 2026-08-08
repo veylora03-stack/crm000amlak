@@ -1,5 +1,6 @@
 ﻿import { defineStore } from 'pinia'
 import { propertiesApi } from '@/api'
+import { handleApiError } from '@/api/errorHandler'
 
 export const usePropertiesStore = defineStore('properties', {
   state: () => ({
@@ -51,8 +52,8 @@ export const usePropertiesStore = defineStore('properties', {
         this.items = response.data || []
         this.total = response.meta?.total || this.items.length
       } catch (error) {
-        const errors = error?.response?.data?.errors || []
-        this.error = errors.length > 0 ? errors[0].message : 'دریافت لیست املاک با مشکل مواجه شد.'
+        handleApiError(error, 'خطا در دریافت املاک')
+        this.error = 'خطا در دریافت املاک'
       } finally {
         this.loading = false
       }
@@ -66,9 +67,8 @@ export const usePropertiesStore = defineStore('properties', {
         this.currentItem = response.data || response
         this.images = this.currentItem.images || []
       } catch (error) {
-        this.currentItem = null
-        this.images = []
-        this.error = 'ملک مورد نظر یافت نشد.'
+        handleApiError(error, 'خطا در دریافت املاک')
+        this.error = 'خطا در دریافت املاک'
       } finally {
         this.loading = false
       }
@@ -82,9 +82,8 @@ export const usePropertiesStore = defineStore('properties', {
         await this.fetchProperties()
         return response.data || response
       } catch (error) {
-        const errors = error?.response?.data?.errors || []
-        this.error = errors.length > 0 ? errors[0].message : 'ذخیره ملک با مشکل مواجه شد.'
-        return null
+        handleApiError(error, 'خطا در دریافت املاک')
+        this.error = 'خطا در دریافت املاک'
       } finally {
         this.loading = false
       }
@@ -101,9 +100,8 @@ export const usePropertiesStore = defineStore('properties', {
         await this.fetchProperties()
         return response.data || response
       } catch (error) {
-        const errors = error?.response?.data?.errors || []
-        this.error = errors.length > 0 ? errors[0].message : 'ویرایش ملک با مشکل مواجه شد.'
-        return null
+        handleApiError(error, 'خطا در دریافت املاک')
+        this.error = 'خطا در دریافت املاک'
       } finally {
         this.loading = false
       }
@@ -117,8 +115,8 @@ export const usePropertiesStore = defineStore('properties', {
         await this.fetchProperties()
         return true
       } catch (error) {
-        this.error = 'حذف ملک با مشکل مواجه شد.'
-        return false
+        handleApiError(error, 'خطا در دریافت املاک')
+        this.error = 'خطا در دریافت املاک'
       } finally {
         this.loading = false
       }
@@ -131,7 +129,8 @@ export const usePropertiesStore = defineStore('properties', {
         const response = await propertiesApi.matches(id)
         this.matches = response.data || []
       } catch (error) {
-        this.error = 'دریافت Smart Match با مشکل مواجه شد.'
+        handleApiError(error, 'خطا در دریافت املاک')
+        this.error = 'خطا در دریافت املاک'
       } finally {
         this.loading = false
       }
@@ -143,8 +142,8 @@ export const usePropertiesStore = defineStore('properties', {
         await this.fetchProperty(id)
         return response.data || response
       } catch (error) {
-        this.error = 'آپلود تصویر با مشکل مواجه شد.'
-        return null
+        handleApiError(error, 'خطا در دریافت املاک')
+        this.error = 'خطا در دریافت املاک'
       }
     },
     
@@ -156,8 +155,8 @@ export const usePropertiesStore = defineStore('properties', {
         }
         return response.data || response
       } catch (error) {
-        this.error = 'انتشار ملک با مشکل مواجه شد.'
-        return null
+        handleApiError(error, 'خطا در دریافت املاک')
+        this.error = 'خطا در دریافت املاک'
       }
     },
     
@@ -169,9 +168,10 @@ export const usePropertiesStore = defineStore('properties', {
         }
         return response.data || response
       } catch (error) {
-        this.error = 'آرشیو ملک با مشکل مواجه شد.'
-        return null
+        handleApiError(error, 'خطا در دریافت املاک')
+        this.error = 'خطا در دریافت املاک'
       }
     }
   }
 })
+

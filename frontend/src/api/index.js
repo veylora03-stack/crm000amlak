@@ -9,3 +9,10 @@ export { useApiResource, useSingletonResource } from '@/composables/useApiResour
 
 // All service APIs
 export * from './services'
+// Error Handler
+export { handleApiError, parseApiError, withErrorHandling } from './errorHandler'
+
+
+// Error Handler
+export { handleApiError, parseApiError, withErrorHandling } from './errorHandler'
+
