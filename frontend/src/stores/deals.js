@@ -9,24 +9,42 @@ export const useDealsStore = defineStore('deals', {
     selectedPipelineId: null,
     loading: false,
     error: null,
-    filters: {
-      search: '',
-      stage: '',
-      agent: '',
-      status: ''
-    }
+    filters: { search: '', stage: '', agent: '', status: '' },
+    // برای undo
+    lastMove: null,
+    undoTimeout: null
   }),
 
   getters: {
     activePipelines: (state) => state.pipelines.filter((p) => p.is_active),
+    
+    selectedPipeline: (state) => {
+      return state.pipelines.find(p => String(p.public_id) === String(state.selectedPipelineId))
+    },
+    
     stagesBySelectedPipeline: (state) => {
-      const idStr = state.selectedPipelineId ? String(state.selectedPipelineId) : null
+      if (!state.selectedPipelineId) return []
       return state.stages
-        .filter((s) => idStr && String(s.pipeline) === idStr)
+        .filter((s) => String(s.pipeline) === String(state.selectedPipelineId))
         .sort((a, b) => a.sort_order - b.sort_order)
     },
+    
     dealsByStage: (state) => {
-      return (stageId) => state.deals.filter((d) => String(d.stage) === String(stageId) && !d.is_deleted)
+      return (stageId) => state.deals.filter((d) => 
+        String(d.stage) === String(stageId) && 
+        !d.is_deleted &&
+        (state.filters.status === '' || d.status === state.filters.status)
+      )
+    },
+    
+    stageStats: (state) => {
+      return (stageId) => {
+        const deals = state.deals.filter(d => String(d.stage) === String(stageId) && !d.is_deleted)
+        return {
+          count: deals.length,
+          total: deals.reduce((sum, d) => sum + (d.amount || 0), 0)
+        }
+      }
     }
   },
 
@@ -37,10 +55,12 @@ export const useDealsStore = defineStore('deals', {
 
     async fetchPipelines() {
       this.loading = true
-      this.error = null
       try {
         const response = await salesApi.pipelines.list()
         this.pipelines = response.data || []
+        if (!this.selectedPipelineId && this.pipelines.length > 0) {
+          this.selectedPipelineId = this.pipelines[0].public_id
+        }
       } catch (error) {
         this.error = 'دریافت پایپ‌لاین‌ها با مشکل مواجه شد.'
       } finally {
@@ -49,93 +69,123 @@ export const useDealsStore = defineStore('deals', {
     },
 
     async fetchStages() {
-      this.loading = true
-      this.error = null
       try {
         const response = await salesApi.stages.list()
         this.stages = response.data || []
       } catch (error) {
         this.error = 'دریافت Stageها با مشکل مواجه شد.'
-      } finally {
-        this.loading = false
       }
     },
 
     async fetchDeals() {
       this.loading = true
-      this.error = null
       try {
         const params = { ...this.filters }
         Object.keys(params).forEach(k => { if (!params[k]) delete params[k] })
-
         const response = await salesApi.deals.list(params)
         this.deals = response.data || []
       } catch (error) {
-        const errors = error?.response?.data?.errors || []
-        this.error = errors.length > 0 ? errors[0].message : 'دریافت معاملات با مشکل مواجه شد.'
+        this.error = 'دریافت معاملات با مشکل مواجه شد.'
       } finally {
         this.loading = false
       }
     },
 
     async createDeal(payload) {
-      this.loading = true
-      this.error = null
       try {
         const response = await salesApi.deals.create(payload)
         await this.fetchDeals()
         return response.data || response
       } catch (error) {
-        const errors = error?.response?.data?.errors || []
-        this.error = errors.length > 0 ? errors[0].message : 'ذخیره معامله با مشکل مواجه شد.'
+        this.error = 'ذخیره معامله با مشکل مواجه شد.'
         return null
-      } finally {
-        this.loading = false
       }
     },
 
     async updateDeal(id, payload) {
-      this.loading = true
-      this.error = null
       try {
         const response = await salesApi.deals.partialUpdate(id, payload)
-        await this.fetchDeals()
         return response.data || response
       } catch (error) {
-        const errors = error?.response?.data?.errors || []
-        this.error = errors.length > 0 ? errors[0].message : 'ویرایش معامله با مشکل مواجه شد.'
+        this.error = 'ویرایش معامله با مشکل مواجه شد.'
         return null
-      } finally {
-        this.loading = false
       }
     },
 
-    async moveDeal(dealId, stageId) {
-      // Optimistic update
+    // Optimistic move with undo
+    optimisticMoveDeal(dealId, newStageId) {
       const dealIndex = this.deals.findIndex(d => String(d.public_id) === String(dealId))
-      const previousStage = dealIndex !== -1 ? this.deals[dealIndex].stage : null
+      if (dealIndex === -1) return null
       
-      if (dealIndex !== -1) {
-        this.deals[dealIndex].stage = stageId
+      const deal = this.deals[dealIndex]
+      const oldStageId = deal.stage
+      
+      // Optimistic update
+      this.deals[dealIndex] = { ...deal, stage: newStageId }
+      
+      // Save for undo
+      this.lastMove = {
+        dealId,
+        oldStageId,
+        newStageId,
+        timestamp: Date.now()
       }
+      
+      return oldStageId
+    },
 
+    async moveDeal(dealId, newStageId) {
+      const oldStageId = this.optimisticMoveDeal(dealId, newStageId)
+      if (!oldStageId) return false
+      
+      // Clear previous undo timeout
+      if (this.undoTimeout) clearTimeout(this.undoTimeout)
+      
       try {
-        await salesApi.deals.move(dealId, stageId)
+        await salesApi.deals.move(dealId, newStageId)
+        
+        // Set undo timeout (5 seconds)
+        this.undoTimeout = setTimeout(() => {
+          this.lastMove = null
+        }, 5000)
+        
         return true
       } catch (error) {
-        // Revert optimistic update
-        if (dealIndex !== -1 && previousStage !== null) {
-          this.deals[dealIndex].stage = previousStage
-        }
-        const errors = error?.response?.data?.errors || []
-        this.error = errors.length > 0 ? errors[0].message : 'جابجایی معامله با مشکل مواجه شد.'
+        // Revert on error
+        this.revertMove(dealId, oldStageId)
+        this.error = 'جابجایی معامله با مشکل مواجه شد.'
         return false
       }
     },
 
+    async undoLastMove() {
+      if (!this.lastMove) return false
+      
+      const { dealId, oldStageId } = this.lastMove
+      
+      try {
+        await salesApi.deals.move(dealId, oldStageId)
+        this.revertMove(dealId, oldStageId)
+        this.lastMove = null
+        if (this.undoTimeout) {
+          clearTimeout(this.undoTimeout)
+          this.undoTimeout = null
+        }
+        return true
+      } catch (error) {
+        this.error = 'برگرداندن معامله با مشکل مواجه شد.'
+        return false
+      }
+    },
+
+    revertMove(dealId, stageId) {
+      const dealIndex = this.deals.findIndex(d => String(d.public_id) === String(dealId))
+      if (dealIndex !== -1) {
+        this.deals[dealIndex] = { ...this.deals[dealIndex], stage: stageId }
+      }
+    },
+
     async deleteDeal(id) {
-      this.loading = true
-      this.error = null
       try {
         await salesApi.deals.remove(id)
         await this.fetchDeals()
@@ -143,8 +193,6 @@ export const useDealsStore = defineStore('deals', {
       } catch (error) {
         this.error = 'حذف معامله با مشکل مواجه شد.'
         return false
-      } finally {
-        this.loading = false
       }
     }
   }
