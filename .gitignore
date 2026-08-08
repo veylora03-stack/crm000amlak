@@ -92,3 +92,10 @@ service-account.json
 # ===== Documentation Build =====
 docs/_build/
 docs/.doctrees/
+# Environment files - NEVER commit these!
+.env
+.env.local
+.env.production
+.env.staging
+backend/.env
+backend/.env.local

@@ -180,3 +180,107 @@ DEBUG = True
 SECRET_KEY = 'django-insecure-crm-amlak-dev-key-change-in-prod'
 ALLOWED_HOSTS = ['*']
 CORS_ALLOW_ALL_ORIGINS = True
+
+# ===== PRODUCTION SECURITY SETTINGS =====
+# Applied at the end to override insecure defaults
+# ============================================
+# CRM Amlak - Production Security Settings
+# ============================================
+# This file overrides insecure defaults in settings.py
+# Import this at the END of settings.py
+
+import os
+from pathlib import Path
+
+# ===== SECURITY CORE =====
+# Generate a real SECRET_KEY - NEVER hardcode in production
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-dev-only-change-me')
+
+# DEBUG must be False in production
+DEBUG = os.environ.get('DJANGO_DEBUG', 'False').lower() == 'true'
+
+# Allowed hosts - restrict in production
+ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+
+# ===== HTTPS & SECURITY HEADERS =====
+SECURE_SSL_REDIRECT = not DEBUG
+SECURE_HSTS_SECONDS = 31536000 if not DEBUG else 0
+SECURE_HSTS_INCLUDE_SUBDOMAINS = not DEBUG
+SECURE_HSTS_PRELOAD = not DEBUG
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_BROWSER_XSS_FILTER = True
+X_FRAME_OPTIONS = 'DENY'
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# ===== SESSION SECURITY =====
+SESSION_COOKIE_SECURE = not DEBUG
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_AGE = 1209600  # 2 weeks
+
+CSRF_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_HTTPONLY = True
+CSRF_COOKIE_SAMESITE = 'Lax'
+
+# ===== CORS CONFIGURATION =====
+# NEVER use CORS_ALLOW_ALL_ORIGINS=True in production
+CORS_ALLOW_ALL_ORIGINS = DEBUG
+
+if not DEBUG:
+    CORS_ALLOWED_ORIGINS = os.environ.get(
+        'CORS_ALLOWED_ORIGINS',
+        'http://localhost:3000'
+    ).split(',')
+else:
+    CORS_ALLOWED_ORIGINS = [
+        'http://localhost:3000',
+        'http://127.0.0.1:3000',
+    ]
+
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
+CORS_ALLOW_HEADERS = [
+    'accept', 'accept-encoding', 'authorization', 'content-type',
+    'dnt', 'origin', 'user-agent', 'x-csrftoken', 'x-requested-with',
+]
+
+# ===== PASSWORD VALIDATION =====
+AUTH_PASSWORD_VALIDATORS = [
+    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator', 'OPTIONS': {'min_length': 8}},
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
+]
+
+# ===== RATE LIMITING (via django-ratelimit) =====
+RATELIMIT_ENABLE = not DEBUG
+RATELIMIT_USE_CACHE = 'default'
+
+# ===== LOGGING =====
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'file': {
+            'level': 'WARNING',
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR / 'logs' / 'django.log',
+            'formatter': 'verbose',
+        },
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+    },
+    'root': {
+        'handlers': ['console', 'file'] if not DEBUG else ['console'],
+        'level': 'INFO',
+    },
+}
